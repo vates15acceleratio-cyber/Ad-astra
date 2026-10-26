@@ -33,6 +33,19 @@ Les agents lisent le journal en lecture seule. Seul `suivi-progression` écrit `
 - Aucun clignotement : l'écran ne varie jamais en opacité ; seuls des éléments locaux bougent (transform). Tout est désactivé avec `prefers-reduced-motion`.
 - Les PNG se régénèrent depuis les SVG avec Chrome sans interface (`--headless=new --screenshot`).
 
+## Croquis d'exercices (depuis 1.2.0)
+- `croquis.js` est **GÉNÉRÉ** (ne pas le modifier à la main) : `node schemas-src/build-bundle.js`. Sources : `schemas-src/schemas-core.js` (moteur de l'appli Muscu), `schemas-src/data/*.js` (poses reprises de Muscu) et `schemas-src/data/adastra.js` (exercices propres, ids `aa-…`).
+- Le lien texte du plan → croquis est `CROQUIS_MAP` dans `app.js` (expressions régulières, première correspondance). Un exercice sans correspondance s'affiche sans vignette.
+- Contrôle visuel : `node schemas-src/grid.js '^aa-' sortie.html` (planche d'icônes) ou `node schemas-src/sheet.js '^aa-' sortie.html`, puis capture avec Chrome sans interface.
+
+## Illustrations d'exercices (ArtCraft)
+- Les illustrations sont produites par Claude : `powershell -File tools/illus3d/build.ps1 <id>` (poses du moteur de schémas, rendu Blender 5.0 en ligne de commande d'un astronaute (combinaison noire, dorures, casque noir brillant ; ou robot doré de style Ultrakill avec `-Style robot`), finition WebP avec `photocraft-cli` ; styles `astro` (astronaute du logo de Muscu : combinaison noire, liserés dorés, casque noir brillant) et `human` disponibles en 5e argument de `render.py` ; style par défaut : `astro`, détaillé ; le propriétaire hésitait entre le robot doré et l'astronaute). L'ArtCraft Launcher ne génère pas d'images. Elles vont dans `img/exo/` (`<id>-<n>.<ext>`, voir `docs/ILLUSTRATIONS.md`). Après tout ajout : `node tools/build-illus.js` (régénère `illustrations.js` et la liste de pré-cache `ILLUS_FILES` de `sw.js`), puis incrémenter la version.
+- Une illustration remplace le croquis schématique quand elle existe ; la fiche exercice la montre en boucle animée (glissement, jamais de variation d'opacité, bouton Pause, désactivée avec `prefers-reduced-motion`). Le propriétaire peut aussi y déposer ses propres images.
+
+## Calage et bilans (depuis 1.2.0)
+- Chaque séance commence par un test de calage (A : tractions et pompes max ; C : squats bulgares max par jambe, champ `legReps` ; B : FC moyenne et effort perçu). Bilans aux semaines 1, 4, 8, 12 (`BILAN` dans `app.js`).
+- La règle de calage (`RATIO`) n'est **pas** issue de la littérature : aucune étude validée trouvée. Ne pas l'afficher comme un fait scientifique ; la documenter avec `recherche-sport` avant d'en parler en termes de preuve.
+
 ## Versions
 - Format `majeur.mineur.correctif`. Trois endroits toujours identiques : `APP_VERSION` (`app.js`), `CACHE_VERSION` (`sw.js`, préfixe `ad-astra-v`) et le titre du README (`# Ad-astra — vX.Y.Z`). Le test `npm test` le vérifie.
 - Un changement de numéro est nécessaire pour qu'une modification de `app.js` atteigne les appareils déjà installés (le JS est servi en cache-first par version).

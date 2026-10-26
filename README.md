@@ -1,7 +1,16 @@
-# Ad-astra — v1.1.0
+# Ad-astra — v1.2.0
 Préparation physique perso
 
 App perso de suivi de reprise sportive. Single-page PWA installable, données 100 % locales (localStorage), pas de serveur, pas de traceur, fonctionne hors ligne.
+
+## Nouveautés v1.2.0
+
+- **Séance guidée** : « Commencer la séance » sur l'accueil ouvre la séance du jour : cochez les exercices, saisissez le test de calage, et le journal s'écrit tout seul à la fin (exercices faits, résultats, semaine, date). Une séance en cours survit à la fermeture de l'appli. La saisie manuelle reste disponible.
+- **Croquis des exercices** : chaque exercice du plan (et de la routine du matin) a sa vignette ; un appui ouvre les positions clés pas à pas. Dessinés par l'appli, hors ligne, avec le moteur de schémas de Muscu et 13 exercices dessinés pour Ad-astra (négatives, body saw, bird-dog, squat sauté, course…).
+- **Test de calage à chaque séance** : A (tractions et pompes au maximum), C (squats bulgares au maximum par jambe), B (FC moyenne et effort perçu). L'accueil propose les séries de travail de la prochaine séance à partir de votre dernier résultat. Règle pratique, non validée par la recherche : voir `docs/PROGRAMME.md`.
+- **Bilans aux semaines 1, 4, 8 et 12** : tractions, pompes, test de 6 minutes (maintenant aux semaines 1, 4, 8, 12), souplesse, poids. Une carte « Semaine de bilan » liste ce qui reste à faire.
+- **Où j'en suis** : départ, dernier résultat et objectif pour les tractions, les pompes et la VMA, avec un repère « en avance / dans la trajectoire / en retard » et la date du prochain bilan.
+- **Données** : format 3 (nouveau champ facultatif `legReps` dans les séances). Migration automatique, rien n'est supprimé ; les anciens exports restent importables. Exportez avant de mettre à jour par prudence.
 
 ## Nouveautés v1.1.0
 
@@ -77,5 +86,6 @@ Avant le bilan, exporter le journal depuis l'appli (onglet Données) vers `data/
 cd tests && npm install && npm test    # code 0 = tout passe
 ```
 
-Structure : `index.html`, `app.js`, `splash.js`, `sw.js`, `manifest.webmanifest`, icônes, `docs/`, `.claude/`, `data/`, `tests/`.
+Structure : `index.html`, `app.js`, `splash.js`, `croquis.js` (généré), `schemas-src/` (sources des croquis), `sw.js`, `manifest.webmanifest`, icônes, `docs/`, `.claude/`, `data/`, `tests/`.
 Convention de version : `majeur.mineur.correctif`. Voir `CLAUDE.md`.
+

@@ -92,7 +92,7 @@ console.log('\nDonnées : migration et sécurité');
 t('migration v1 → v2 : rien n\'est perdu, champs ajoutés', () => {
   const w = load({ seed: { [KEY]: V1 } });
   const db = JSON.parse(w.eval('JSON.stringify(db)')), old = JSON.parse(V1);
-  eq(db.sessions.length, old.sessions.length); eq(db.version, 2);
+  eq(db.sessions.length, old.sessions.length); eq(db.version, 3);
   eq(db.customField, 'doit survivre'); eq(db.sessions[0].champInconnu, 42);
   eq(db.morning, {}); eq(db.mobility, []); eq(db.profile.start, old.profile.start);
 });
@@ -124,6 +124,7 @@ const bad = {
   'test sans distance': m => { m.tests[0].distance = 'abc'; },
   'routine du matin inconnue': m => { m.morning['2026-10-13'] = 'zumba'; },
   'souplesse invalide': m => { m.mobility[0].reach = {}; },
+  'calage jambes invalide': m => { m.sessions[0].legReps = 'beaucoup'; },
   'début de cycle invalide': m => { m.profile.start = 'hier'; }
 };
 Object.entries(bad).forEach(([name, mut]) => t('rejeté : ' + name, () => {

@@ -11,8 +11,8 @@ const num = v => { const n = parseFloat(String(v).replace(",",".")); return Numb
 const fmtDate = s => parseISO(s).toLocaleDateString("fr-FR",{day:"2-digit",month:"short"});
 
 /* ===== Données ===== */
-const APP_VERSION = "1.1.0";   // identique à CACHE_VERSION (sw.js) et au titre du README
-const DATA_VERSION = 2;        // 1 = avant la routine du matin et les tests de souplesse
+const APP_VERSION = "1.2.0";   // identique à CACHE_VERSION (sw.js) et au titre du README
+const DATA_VERSION = 3;        // 1 = avant la routine du matin et les tests de souplesse ; 2 = avant le test de calage des jambes (legReps)
 function defaultDB(){
   return {
     version: DATA_VERSION, lastExport: null,
@@ -80,7 +80,7 @@ function cleanJournal(src){
   const numFields = (o, keys) => { for(const k of keys){ const v = nn(o[k]); if(Number.isNaN(v)) return false; o[k] = v; } return true; };
   for(const x of d.sessions){
     if(!x || typeof x!=="object" || !isDay(x.date) || typeof x.type!=="string" || x.type.length<1 || x.type.length>10) return {error:"séances"};
-    if(!numFields(x, ["rpe","knee","sleep","pullups","pushups"])) return {error:"séances"};
+    if(!numFields(x, ["rpe","knee","sleep","pullups","pushups","legReps"])) return {error:"séances"};
     if(x.cardio!=null){ if(typeof x.cardio!=="object" || !numFields(x.cardio, ["minutes","km","hrAvg","hrMax"])) return {error:"séances"}; }
     if(x.exercises!=null && typeof x.exercises!=="string") return {error:"séances"};
     uid(x,"s");
@@ -135,16 +135,17 @@ function downloadExport(){
 
 /* ===== Programme 12 semaines (3 séances / semaine) ===== */
 const DELOAD = [4,8,12];
-const REPS_TEST = [1,4,8,12];
+const REPS_TEST = [1,4,8,12];   // semaines de bilan : tests de force, de 6 min, de souplesse, poids
+const BILAN = REPS_TEST;
 const CARDIO = {
   1:"Test de 6 minutes : échauffement 10 min, distance maximale en 6 min, retour au calme. Noter distance et FC pic.",
   2:"Endurance facile 30–40 min (allure de conversation).",
   3:"4×4 nordique : 4 × 4 min à 85–95 % FCmax, récupération 3 min à 60–70 %.",
-  4:"Endurance facile 30 min (semaine allégée).",
+  4:"Test de 6 minutes (bilan) : échauffement 10 min, distance maximale en 6 min, retour au calme. Puis 10 min facile (semaine allégée).",
   5:"4×4 nordique.",
   6:"30/30 : 2 séries de 10 × (30 s à VMA / 30 s facile), 4 min entre les séries.",
   7:"4×4 nordique.",
-  8:"Endurance facile 30–40 min (semaine allégée).",
+  8:"Test de 6 minutes (bilan) : échauffement 10 min, distance maximale en 6 min, retour au calme. Puis 10 min facile (semaine allégée).",
   9:"4×4 nordique.",
   10:"30/30 : 2 séries de 12 × (30 s à VMA / 30 s facile).",
   11:"4×4 nordique.",
@@ -188,7 +189,7 @@ function plan(w){
   const deload = DELOAD.includes(w);
   const test = REPS_TEST.includes(w);
   const A = [
-    test ? "Test (après échauffement, une série chacun) : maximum de tractions strictes, maximum de pompes propres" : null,
+    `${test?"Test de calage et de bilan":"Test de calage"} (5 min, après échauffement, une série chacun) : maximum de tractions strictes, maximum de pompes propres, en gardant une exécution propre. À noter dans le journal : ils règlent la séance suivante.`,
     `Tractions : ${pullSets(w)}`,
     "Négatives : 3 × 3, descente 4–5 s",
     "Tirages horizontaux (table solide ou anneaux) : 3 × 8–12",
@@ -197,12 +198,14 @@ function plan(w){
   ].filter(Boolean);
   const B = [
     CARDIO[w],
+    BILAN.includes(w) ? "Test de calage = le test de 6 minutes ci-dessus." : "Test de calage : à la fin, notez la FC moyenne et l’effort perçu (1–10) dans le journal. Ils règlent la séance suivante.",
     "Genou gauche : course continue limitée à " + db.profile.maxRunMin + " min. Les sorties longues se font à vélo ou en piscine."
   ];
   let C;
   if(w<=2) C = ["Squats bulgares : 3 × 8 par jambe, amplitude confortable","Fentes arrière : 3 × 8 par jambe","Squats au poids du corps, tempo lent : 3 × 10"];
   else if(w<=6) C = ["Squats bulgares : 3 × 8–10 par jambe","Squats sautés : 3 × 6–8","Corde à sauter : 5 × 1 min","Pistol assisté : 3 × 3 par jambe"];
   else C = ["Squats bulgares lestés (sac à dos) : 4 × 8–10 par jambe","Pistol squat en progression : 3 × 3–5 par jambe","Sauts sur box : 4 × 5","Pompes claquées (si 25 pompes propres atteintes) : 3 × 5","Corde à sauter : 6 × 1 min"];
+  C.unshift("Test de calage (après échauffement, une série par jambe) : maximum de squats bulgares propres par jambe. Arrêtez si la technique se dégrade ou si le genou atteint 4/10. À noter dans le journal.");
   C.push(...absC(w));
   C.push("Genou gauche : arrêter l’exercice si la douleur atteint 4/10.");
   const O = ["Piscine ou vélo facile, 20–30 min","Mobilité hanches, épaules, chevilles : 10 min"];
@@ -256,6 +259,114 @@ function alerts(){
   const rpeHigh = ss.slice(-3).filter(s=>s.rpe>=9).length;
   if(rpeHigh>=2) out.push({lvl:"warn", t:"Plusieurs séances récentes à effort ≥ 9/10 : passez à une séance allégée."});
   return out;
+}
+
+/* ===== Calage et bilans ===== */
+// Règle pratique de calage : séries de travail = part du dernier maximum. Elle suit les fourchettes déjà écrites dans le
+// programme (« sous-maximal ») ; aucune étude validée ne relie un maximum de répétitions en poids du corps à des séries
+// de travail : à ajuster selon le ressenti.
+const RATIO = w => w<=2 ? .6 : w<=6 ? .7 : .75;
+const byDate = (a,b) => a.date.localeCompare(b.date);
+const withKey = k => db.sessions.filter(s=>s[k]!=null).sort(byDate);
+const lastOf = k => { const a = withKey(k); return a.length ? a[a.length-1] : null; };
+const firstOf = k => withKey(k)[0] || null;
+const workReps = (max, w) => Math.max(1, Math.round(max*RATIO(w)));
+// Fourchettes du programme (mêmes valeurs que pullSets, pushSets et la liste C de plan()) : le calage ne choisit qu'à l'intérieur.
+const RANGE = {
+  pull:w => w<=2 ? {sets:5,lo:2,hi:3} : w<=6 ? {sets:5,lo:3,hi:4} : {sets:4,lo:4,hi:6},
+  push:w => w<=2 ? {sets:3,lo:12,hi:14} : w<=6 ? {sets:4,lo:12,hi:15} : {sets:4,lo:10,hi:12},
+  leg:w => w<=2 ? {sets:3,lo:8,hi:8} : w<=6 ? {sets:3,lo:8,hi:10} : {sets:4,lo:8,hi:10}
+};
+function targetText(max, w, rg, harder){
+  const r = workReps(max, w), span = rg.lo===rg.hi ? `${rg.lo}` : `${rg.lo}–${rg.hi}`;
+  if(r<rg.lo) return `<b>${rg.sets} × ${r}</b> (le programme indique ${span} : votre maximum est encore bas, restez sous-maximal et ajoutez des négatives ou des séries courtes)`;
+  if(r>rg.hi) return `<b>${rg.sets} × ${rg.hi}</b> (haut de la fourchette ${span}${harder?` : passez à une variante plus difficile (${harder})`:""})`;
+  return `<b>${rg.sets} × ${r}</b> (dans la fourchette ${span} du programme)`;
+}
+function kneeFlag(){
+  const ss = db.sessions.slice().sort(byDate); if(!ss.length) return false;
+  if(ss[ss.length-1].knee>=6) return true;
+  const l = ss.slice(-3).filter(x=>x.knee!=null);
+  return l.length>=2 && l.reduce((a,x)=>a+x.knee,0)/l.length>=4;
+}
+const CALAGE = {
+  A:"Après l’échauffement : une série de tractions strictes au maximum, repos 3 min, une série de pompes propres au maximum. Arrêtez dès que la technique se dégrade.",
+  B:"Pas de test avant l’effort : à la fin de la séance, notez la FC moyenne et l’effort perçu (1–10). Pendant les semaines de bilan, le test de 6 minutes remplace la séance.",
+  C:"Après l’échauffement : une série de squats bulgares propres au maximum par jambe, la plus faible d’abord. Arrêtez si la technique se dégrade ou si le genou atteint 4/10."
+};
+function calageRefs(type, w){
+  const out = [];
+  if(type==="A"){
+    const p = lastOf("pullups"), u = lastOf("pushups");
+    out.push(p ? `Tractions : dernier maximum <b>${p.pullups}</b> (${esc(fmtDate(p.date))}) → séries de travail ${targetText(p.pullups,w,RANGE.pull(w),"tractions lestées ou archer")}` : "Tractions : pas encore de référence. Faites le test.");
+    out.push(u ? `Pompes : dernier maximum <b>${u.pushups}</b> (${esc(fmtDate(u.date))}) → séries de travail ${targetText(u.pushups,w,RANGE.push(w),"archer, mains rapprochées, pieds surélevés")}` : "Pompes : pas encore de référence. Faites le test.");
+  } else if(type==="C"){
+    const l = lastOf("legReps");
+    if(kneeFlag()) out.push("<b>Test reporté</b> : le genou gauche est sensible ces derniers jours. Gardez l’amplitude confortable, sans sauts, et refaites le test quand l’alerte a disparu.");
+    out.push(l ? `Squats bulgares : dernier maximum <b>${l.legReps}</b> par jambe (${esc(fmtDate(l.date))}) → séries de travail ${targetText(l.legReps,w,RANGE.leg(w),"squats bulgares lestés")} par jambe` : "Squats bulgares : pas encore de référence. Faites le test quand le genou le permet.");
+  } else if(type==="B"){
+    const b = db.sessions.filter(s=>s.type==="B" && s.rpe!=null).sort(byDate).pop();
+    const p = paces();
+    if(b){
+      const adv = b.rpe>=9 ? "trop dure : restez en bas de la fourchette de FC" : b.rpe<=4 ? "facile : vous pouvez viser le haut de la fourchette de FC" : "dans la bonne zone : gardez le même niveau";
+      out.push(`Dernière séance B : effort <b>${b.rpe}/10</b> (${esc(fmtDate(b.date))}), ${adv}.`);
+    } else out.push("Pas encore de séance B enregistrée : notez l’effort perçu à la fin.");
+    if(p) out.push(`Repères du dernier test de 6 minutes : VMA <b>${p.vma.toFixed(1)} km/h</b>${p.fc4x4?`, FC des 4 min ${p.fc4x4[0]}–${p.fc4x4[1]}, récupération ${p.fcRec[0]}–${p.fcRec[1]}`:""}.`);
+    else out.push("Pas encore de test de 6 minutes : il est prévu en semaine 1.");
+  }
+  return out;
+}
+function calageCard(type, w){
+  const refs = calageRefs(type, w);
+  return `<div class="calage"><div class="lbl-up">${ic("play","sm")}Test de calage avant la séance</div><p>${esc(CALAGE[type]||"")}</p>${refs.length?`<ul class="plan">${refs.map(r=>`<li>${r}</li>`).join("")}</ul>`:""}<small>Règle pratique, non validée par la recherche : séries de travail à environ ${Math.round(RATIO(w)*100)} % du dernier maximum. Ajustez selon le ressenti.</small></div>`;
+}
+// Où en suis-je ? Repère linéaire entre la première mesure et l'objectif à la semaine 12 (ta propre trajectoire, pas une norme).
+function whereAmI(key, goal){
+  const f = firstOf(key), l = lastOf(key);
+  if(!f) return null;
+  const w0 = Math.max(1, rawWeekOf(f.date)), wNow = Math.min(12, Math.max(1, rawWeekOf(todayISO())));
+  const frac = w0>=12 ? 1 : Math.min(1, Math.max(0, (wNow-w0)/(12-w0)));
+  const exp = f[key] + (goal - f[key])*frac;
+  const diff = l[key] - exp, tol = Math.max(1, goal*0.05);
+  const state = f===l && w0===wNow ? "départ" : diff>=tol ? "en avance" : diff<=-tol ? "en retard" : "dans la trajectoire";
+  return {base:f[key], last:l[key], exp:Math.round(exp*10)/10, goal, state, pct:Math.max(0,Math.min(100,Math.round(l[key]/goal*100))), date:l.date};
+}
+function nextBilan(){
+  const rw = rawWeekOf(todayISO());
+  const wk = BILAN.find(b=>b>=Math.max(1,rw));
+  if(!wk) return null;
+  const d = parseISO(db.profile.start); d.setDate(d.getDate()+(wk-1)*7);
+  return {week:wk, date:dayKey(d)};
+}
+function bilanStatus(){
+  const rw = rawWeekOf(todayISO()), inWeek = d => rawWeekOf(d)===rw;
+  return [
+    {k:"A", t:"Tractions et pompes au maximum (séance A)", ok:db.sessions.some(s=>inWeek(s.date) && (s.pullups!=null || s.pushups!=null)), tab:"log", type:"A"},
+    {k:"B", t:"Test de 6 minutes", ok:db.tests.some(t=>inWeek(t.date)), tab:"body", held:kneeFlag()},
+    {k:"S", t:"Tests de souplesse", ok:db.mobility.some(m=>inWeek(m.date)), tab:"body"},
+    {k:"P", t:"Poids et tour de taille", ok:db.body.some(b=>inWeek(b.date)), tab:"body"}
+  ];
+}
+function levelCard(){
+  const rows = [["Tractions max","pullups",db.profile.goalPullups],["Pompes max","pushups",db.profile.goalPushups]]
+    .map(([t,k,g])=>({t, w:whereAmI(k,g)}));
+  const tests = db.tests.slice().sort(byDate), vma = tests.length ? tests : null;
+  const nb = nextBilan();
+  const row = r => r.w ? `<div class="lvl"><div class="lvl-h"><b>${esc(r.t)}</b><span class="tag ${r.w.state==="en retard"?"warn":r.w.state==="départ"?"":"ok"}">${esc(r.w.state)}</span></div>
+      <div class="lvl-n">${r.w.base} → <b>${r.w.last}</b> <span>/ objectif ${r.w.goal}</span></div>
+      <div class="bar" role="img" aria-label="${r.w.pct} % de l’objectif"><i style="width:${r.w.pct}%"></i></div>
+      <small style="margin-top:2px">Repère de la trajectoire aujourd’hui : environ ${r.w.exp}.</small></div>`
+    : `<div class="lvl"><div class="lvl-h"><b>${esc(r.t)}</b><span class="tag">pas de mesure</span></div><small>Faites le test de calage en séance A pour vous situer.</small></div>`;
+  const v = vma ? `<div class="lvl"><div class="lvl-h"><b>VMA</b></div><div class="lvl-n">${(vma[0].distance/100).toFixed(1)} → <b>${(vma[vma.length-1].distance/100).toFixed(1)}</b> <span>km/h</span></div></div>` : "";
+  return `<div class="card"><h2>${ic("chart")}Où j’en suis</h2>${rows.map(row).join("")}${v}
+    ${nb?`<small>Prochain bilan : semaine ${nb.week} (${esc(fmtDate(nb.date))}) : tractions, pompes, test de 6 minutes, souplesse, poids.</small>`:`<small>Cycle de 12 semaines terminé.</small>`}</div>`;
+}
+function bilanCard(){
+  const w = weekOf(todayISO());
+  if(!BILAN.includes(w) || rawWeekOf(todayISO())>12) return "";
+  const st = bilanStatus(), left = st.filter(x=>!x.ok && !x.held).length;
+  return `<div class="card bilan"><h2>${ic("shield")}Semaine de bilan</h2><p>${left?`Cette semaine, faites les mesures qui comparent votre niveau à celui du début (${left} restante${left>1?"s":""}).`:"Toutes les mesures du bilan sont faites."}</p>
+    <div class="list">${st.map(x=>`<div class="item"><div class="badge ${x.ok?"ok":""}">${x.ok?ic("check","sm"):esc(x.k)}</div><div class="main"><div class="t">${esc(x.t)}</div></div>${x.ok?`<span class="tag ok">fait</span>`:x.held?`<span class="tag warn">reporté (genou)</span>`:`<button class="ghost" data-go="${x.tab}" ${x.type?`data-type="${x.type}"`:""} type="button">Ouvrir</button>`}</div>`).join("")}</div></div>`;
 }
 
 /* ===== Icônes ===== */
@@ -372,7 +483,66 @@ function render(){
     $("#err-home").onclick = () => { tab = "today"; render(); };
   }
 }
-const planCard = (key, p) => `<div class="card"><div class="session-head"><div class="letter">${esc(key)}</div><div><h2>${esc(p.name.replace(/^[A-Z]\s·\s/,""))}</h2>${p.note?`<div class="meta"><span class="tag info">${esc(p.note)}</span></div>`:""}</div></div><ul class="plan">${p.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul></div>`;
+const CROQUIS_MAP = [
+  [/^Test de calage/i, null], [/^Test /i, null], [/^Genou gauche/i, null], [/^Intensité/i, null],
+  [/sauts sur box/i, "box-jump"], [/ischio/i, "etir-ischios"], [/pigeon/i, "etir-pigeon"], [/adducteurs|grenouille/i, "etir-grenouille"],
+  [/chevilles/i, "mob-chevilles"], [/colonne thoracique|rotation thoracique/i, "mob-thoracique"], [/poignets/i, "mob-poignets"], [/grand écart/i, "etir-grand-ecart"],
+  [/cat.cow/i, "cat-cow"], [/world.s greatest/i, "world-greatest-stretch"], [/cercles d.épaules/i, "mob-epaules"],
+  [/négatives/i, "aa-negative"], [/^Tractions/i, "dos-tractions"], [/tirages horizontaux/i, "dos-rowing-aus"],
+  [/pompes claquées/i, "aa-pompes-claquees"], [/^Pompes/i, "pec-pompes"],
+  [/gainage latéral/i, "ab-side-plank"], [/body saw/i, "aa-body-saw"], [/planche 3/i, "ab-plank"], [/dead bug/i, "ab-deadbug"],
+  [/relevés de genoux/i, "aa-releve-genoux"], [/relevés de jambes/i, "ab-leg-raise-susp"], [/hollow/i, "ab-hollow"],
+  [/bird/i, "aa-bird-dog"], [/crunch/i, "ab-crunch"], [/russian/i, "ab-russian"], [/l.sit/i, "cal-lsit"], [/dragon flag/i, "ab-dragon"],
+  [/squats bulgares/i, "q-fentes-bulg"], [/fentes arrière/i, "aa-fente-arriere"], [/squats sautés/i, "aa-squat-saute"],
+  [/squats? au poids du corps/i, "aa-squat-pc"], [/corde à sauter/i, "aa-corde"], [/pistol assisté/i, "cal-pistol-assiste"], [/pistol/i, "cal-pistol"],
+  [/fléchisseurs? de hanche|fente basse/i, "aa-fente-basse"], [/suspension passive/i, "aa-suspension"], [/squat profond/i, "aa-squat-profond"],
+  [/endurance|4×4|30\/30|course/i, "aa-course"]
+];
+const illus = id => (typeof ILLUS!=="undefined" && ILLUS[id]) || null;   // { n, ext } si des images existent (img/exo/<id>-<n>.<ext>)
+const illusSrc = (id, i) => `img/exo/${id}-${i}.${ILLUS[id].ext}`;
+const hasCroquis = id => typeof AdAstraCroquis!=="undefined" && AdAstraCroquis.has(id);
+const thumbHTML = id => illus(id) ? `<img src="${esc(illusSrc(id,1))}" alt="" width="64" height="64" loading="lazy">` : AdAstraCroquis.icon(id);
+function croquisFor(text){
+  for(const [rx,id] of CROQUIS_MAP) if(rx.test(text)) return id && (hasCroquis(id) || illus(id)) ? id : null;
+  return null;
+}
+function exLabel(text){ return text.split(/[:(]/)[0].trim().slice(0,60); }
+function planItem(text){
+  const id = croquisFor(text);
+  if(!id) return `<li>${esc(text)}</li>`;
+  return `<li class="ex"><button type="button" class="ex-btn" data-croquis="${esc(id)}" data-title="${esc(exLabel(text))}" aria-label="Voir la démonstration : ${esc(exLabel(text))}"><span class="thumb">${thumbHTML(id)}</span><span class="ex-t">${esc(text)}</span></button></li>`;
+}
+function demoBody(id){
+  const il = illus(id);
+  if(!il){ const poses = AdAstraCroquis.poses(id);
+    return `<div class="poses">${poses.map(p=>`<figure><div class="pose-svg">${p.svg}</div><figcaption>${esc(p.label)}</figcaption></figure>`).join("")}</div><small>Croquis schématique du mouvement : il montre les positions clés, pas la prise exacte des mains.</small>`; }
+  const labels = hasCroquis(id) ? AdAstraCroquis.poses(id).map(p=>p.label) : [];
+  const imgs = Array.from({length:il.n},(_,i)=>`<img src="${esc(illusSrc(id,i+1))}" alt="Position ${i+1}${labels[i]?" : "+esc(labels[i]):""}">`).join("");
+  const anim = il.n>=2 && il.n<=3;
+  return `${anim?`<div class="demo"><div class="demo-view"><div class="demo-track n${il.n}" style="--n:${il.n}" id="demo-track">${imgs}</div></div><div class="demo-ctl"><button class="ghost" type="button" id="demo-pause" aria-pressed="false">Pause</button></div></div>`:""}
+    <div class="demo-strip">${Array.from({length:il.n},(_,i)=>`<figure><img src="${esc(illusSrc(id,i+1))}" alt=""><figcaption>${i+1}${labels[i]?" · "+esc(labels[i]):""}</figcaption></figure>`).join("")}</div>`;
+}
+function openCroquis(id, title){
+  const el = document.createElement("div");
+  el.className = "sheet-back"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true"); el.setAttribute("aria-label", "Croquis : "+title);
+  el.innerHTML = `<div class="sheet"><div class="sheet-h"><h2>${esc(title)}</h2><button class="icon-btn" type="button" aria-label="Fermer">×</button></div>
+    ${demoBody(id)}</div>`;
+  const opener = document.activeElement;
+  const onKey = e => { if(e.key==="Escape") close(); };
+  const close = () => { el.remove(); document.removeEventListener("keydown", onKey); if(opener && opener.focus) opener.focus(); };
+  el.addEventListener("click", e => { if(e.target===el) close(); });
+  el.querySelector("button").onclick = close;
+  const pz = el.querySelector("#demo-pause");
+  if(pz) pz.onclick = () => { const t = el.querySelector("#demo-track"), on = t.classList.toggle("paused"); pz.setAttribute("aria-pressed", String(on)); pz.textContent = on ? "Lecture" : "Pause"; };
+  document.addEventListener("keydown", onKey);
+  document.body.appendChild(el);
+  el.querySelector("button").focus();
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-croquis]");
+  if(b) openCroquis(b.dataset.croquis, b.dataset.title);
+});
+const planCard = (key, p) => `<div class="card"><div class="session-head"><div class="letter">${esc(key)}</div><div><h2>${esc(p.name.replace(/^[A-Z]\s·\s/,""))}</h2>${p.note?`<div class="meta"><span class="tag info">${esc(p.note)}</span></div>`:""}</div></div><ul class="plan">${p.items.map(planItem).join("")}</ul></div>`;
 const SESSION_LABEL = {A:"Force haut du corps",B:"Moteur aérobie",C:"Jambes, tronc, explosivité"};
 
 function weeksBar(w){
@@ -403,8 +573,11 @@ function viewToday(){
     <small>Objectif : 3 séances (A, B, C), au moins 48 h entre deux séances intenses. M est optionnelle.</small>
   </div>
   ${next?`<div class="card"><div class="session-head"><div class="letter">${next}</div><div><h2>Prochaine séance</h2><div class="meta">${esc(SESSION_LABEL[next])}</div></div></div>
-    <button class="btn primary block" id="go-log" data-type="${next}" style="margin-top:0">${ic("play","sm")}Journaliser la séance ${next}</button></div>${planCard(next,P[next])}`
+    ${calageCard(next,w)}
+    <button class="btn primary block" id="go-log" data-type="${next}" style="margin-top:14px">${ic("play","sm")}Commencer la séance ${next}</button></div>${planCard(next,P[next])}`
   :`<div class="banner good">${ic("check")}<span>Semaine complète : les trois séances sont faites. Récupération active en option.</span></div>`}
+  ${bilanCard()}
+  ${levelCard()}
   ${morningCard()}
   <div class="stats">
     <div class="stat"><b>${db.sessions.length}</b><span>séances enregistrées</span></div>
@@ -413,7 +586,7 @@ function viewToday(){
     <div class="stat"><b>${p&&p.fcmax?p.fcmax:"—"}${p&&p.fcmax?"<em>bpm</em>":""}</b><span>FCmax mesurée</span></div>
   </div>`;
 }
-function afterToday(){ const m=$("#go-morning"); if(m) m.onclick=()=>{ tab="morning"; tabChanged=true; render(); toTop(); }; const b=$("#go-log"); if(b) b.onclick=()=>{ prefill={type:b.dataset.type}; tab="log"; tabChanged=true; render(); toTop(); }; }
+function afterToday(){ document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{ if(b.dataset.type) prefill={type:b.dataset.type}; tab=b.dataset.go; tabChanged=true; render(); toTop(); }); const m=$("#go-morning"); if(m) m.onclick=()=>{ tab="morning"; tabChanged=true; render(); toTop(); }; const b=$("#go-log"); if(b) b.onclick=()=>startDraft(b.dataset.type); }
 
 /* ===== Routine du matin et souplesse ===== */
 const MORNING = {
@@ -452,7 +625,7 @@ function last7(){
   for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const k=dayKey(d); out.push({k, l:d.toLocaleDateString("fr-FR",{weekday:"short"}).replace(".",""), v:db.morning[k]||null, today:i===0}); }
   return out;
 }
-const stepList = steps => `<ol class="steps">${steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`;
+const stepList = steps => `<ol class="steps">${steps.map(planItem).join("")}</ol>`;
 function morningCard(){
   const cur = db.morning[todayISO()], n = streak();
   return `<div class="card"><h2>${ic("sun")}Routine du matin</h2>
@@ -502,9 +675,10 @@ function afterMobility(){
 }
 
 function viewLog(){
+  if(draft) return viewSession();
   const t = (prefill&&prefill.type)||"A";
   const types = {A:"A · Force haut",B:"B · Cardio",C:"C · Jambes",M:"M · Souplesse",O:"Récup active",L:"Libre"};
-  return `<div class="card"><h2>${ic("log")}Nouvelle séance</h2>
+  return `${guidedStart()}<div class="card"><h2>${ic("log")}Saisie manuelle</h2>
   <form id="logform">
     <label for="lg-date">Date</label><input type="date" id="lg-date" name="date" value="${todayISO()}" required>
     <span class="lbl" id="lg-type-l">Type de séance</span>
@@ -515,10 +689,16 @@ function viewLog(){
       <div><label>Genou gauche (0–10)</label><input type="number" inputmode="numeric" name="knee" min="0" max="10" step="1" value="0"></div>
       <div><label>Sommeil (h, nuit précédente)</label><input type="number" inputmode="decimal" name="sleep" min="0" max="14" step="0.5"></div>
     </div>
-    <h3>Force</h3>
-    <div class="row">
-      <div><label>Tractions max (une série)</label><input type="number" inputmode="numeric" name="pullups" min="0"></div>
-      <div><label>Pompes max (une série)</label><input type="number" inputmode="numeric" name="pushups" min="0"></div>
+    <div id="calage-box">
+      <h3>Test de calage (en début de séance)</h3>
+      <p class="small" id="calage-txt"></p>
+      <div class="row" data-calage="A">
+        <div><label>Tractions max (une série)</label><input type="number" inputmode="numeric" name="pullups" min="0"></div>
+        <div><label>Pompes max (une série)</label><input type="number" inputmode="numeric" name="pushups" min="0"></div>
+      </div>
+      <div class="row" data-calage="C">
+        <div><label>Squats bulgares max par jambe</label><input type="number" inputmode="numeric" name="legReps" min="0"></div>
+      </div>
     </div>
     <h3>Cardio (si concerné)</h3>
     <div class="row">
@@ -537,6 +717,88 @@ function viewLog(){
   </form></div>
   <div class="card"><h2>${ic("log")}Historique</h2>${historyTable()}</div>`;
 }
+/* ===== Séance guidée : le journal se remplit avec la séance ===== */
+const DRAFT_KEY = KEY + ".seance";
+let draft = null;
+try{ const r = localStorage.getItem(DRAFT_KEY); if(r){ const d = JSON.parse(r); if(d && typeof d==="object" && ["A","B","C","M","O"].includes(d.type) && isDay(d.date)) draft = {type:d.type, date:d.date, done:Array.isArray(d.done)?d.done.filter(Number.isInteger):[], vals:d.vals&&typeof d.vals==="object"?d.vals:{}}; } }catch(e){}
+function saveDraft(){ try{ if(draft) localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); else localStorage.removeItem(DRAFT_KEY); }catch(e){} }
+function startDraft(type){
+  if(!draft || draft.type!==type) draft = {type, date:todayISO(), done:[], vals:{}};
+  saveDraft(); tab = "log"; tabChanged = true; render(); toTop();
+}
+const INFO_RX = /^(Test|Genou gauche|Intensité|Semaine allégée)/i;
+const isCheckable = t => !INFO_RX.test(t);
+function shortEx(t){
+  let x = t.replace(/^Bloc abdos \([^)]*\)\s*:\s*/i, "");
+  if(x.length>80){ const i = x.search(/[(—]/); if(i>10) x = x.slice(0,i).trim(); }
+  return x.length>90 ? x.slice(0,88).trim()+"…" : x;
+}
+function sessionItems(){ return plan(weekOf(draft.date))[draft.type].items; }
+function viewSession(){
+  const w = weekOf(draft.date), P = plan(w)[draft.type], items = P.items, v = draft.vals;
+  const checkable = items.map((t,i)=>isCheckable(t)?i:-1).filter(i=>i>=0);
+  const nDone = checkable.filter(i=>draft.done.includes(i)).length, pct = checkable.length ? Math.round(nDone/checkable.length*100) : 0;
+  const val = k => esc(v[k]??"");
+  const rows = items.map((t,i)=>{
+    if(!isCheckable(t)) return `<div class="srow info"><span class="ex-t">${esc(t)}</span></div>`;
+    const on = draft.done.includes(i), id = croquisFor(t);
+    return `<div class="srow ${on?"done":""}"><button type="button" class="ck" role="checkbox" aria-checked="${on}" data-ck="${i}" aria-label="Fait : ${esc(exLabel(t))}">${on?ic("check","sm"):""}</button>`
+      + (id ? `<button type="button" class="thumb thumb-sm" data-croquis="${esc(id)}" data-title="${esc(exLabel(t))}" aria-label="Voir la démonstration : ${esc(exLabel(t))}">${thumbHTML(id)}</button>` : "")
+      + `<span class="ex-t">${esc(t)}</span></div>`;
+  }).join("");
+  const calageFields = draft.type==="A" ? `<div class="row"><div><label>Tractions max (une série)</label><input type="number" inputmode="numeric" data-v="pullups" min="0" value="${val("pullups")}"></div><div><label>Pompes max (une série)</label><input type="number" inputmode="numeric" data-v="pushups" min="0" value="${val("pushups")}"></div></div>`
+    : draft.type==="C" ? `<div class="row"><div><label>Squats bulgares max par jambe</label><input type="number" inputmode="numeric" data-v="legReps" min="0" value="${val("legReps")}"></div></div>` : "";
+  const cardioFields = draft.type==="B" ? `<h3>Cardio</h3><div class="row">
+      <div><label>Activité</label><select data-v="cardioKind">${["","Course","Vélo","Piscine"].map(k=>`<option ${v.cardioKind===k?"selected":""}>${k}</option>`).join("")}</select></div>
+      <div><label>Durée (min)</label><input type="number" inputmode="numeric" data-v="minutes" min="0" value="${val("minutes")}"></div>
+      <div><label>Distance (km)</label><input type="text" inputmode="decimal" data-v="km" value="${val("km")}"></div>
+      <div><label>FC moyenne</label><input type="number" inputmode="numeric" data-v="hrAvg" min="0" value="${val("hrAvg")}"></div>
+      <div><label>FC max</label><input type="number" inputmode="numeric" data-v="hrMax" min="0" value="${val("hrMax")}"></div></div>` : "";
+  return `<div class="card"><div class="session-head"><div class="letter">${esc(draft.type)}</div><div><h2>Séance ${esc(draft.type)} en cours</h2><div class="meta">Semaine ${w} · ${esc(fmtDate(draft.date))}</div></div></div>
+    ${CALAGE[draft.type]?calageCard(draft.type,w):""}${calageFields?`<h3>Résultat du test de calage</h3>${calageFields}`:""}</div>
+  <div class="card"><h2>${ic("check")}Exercices</h2>
+    <div class="bar" role="img" aria-label="${pct} % fait"><i style="width:${pct}%"></i></div><small style="margin-top:2px">${nDone} sur ${checkable.length} faits. Cochez au fur et à mesure : le journal s’écrit à la fin.</small>
+    <div class="slist">${rows}</div></div>
+  <div class="card"><h2>${ic("log")}Fin de séance</h2>
+    <div class="row">
+      <div><label>Effort perçu (1–10)</label><input type="number" inputmode="numeric" data-v="rpe" min="1" max="10" step="1" value="${val("rpe")}"></div>
+      <div><label>Genou gauche (0–10)</label><input type="number" inputmode="numeric" data-v="knee" min="0" max="10" step="1" value="${v.knee??0}"></div>
+      <div><label>Sommeil (h, nuit précédente)</label><input type="number" inputmode="decimal" data-v="sleep" min="0" max="14" step="0.5" value="${val("sleep")}"></div>
+    </div>${cardioFields}
+    <label>Notes</label><textarea data-v="notes">${esc(v.notes||"")}</textarea>
+    <button class="btn primary block" id="s-finish" type="button">${ic("check","sm")}Terminer et enregistrer</button>
+    <div class="actions"><button class="btn ghost" id="s-cancel" type="button">Abandonner cette séance</button></div></div>`;
+}
+function afterSession(){
+  document.querySelectorAll("[data-ck]").forEach(b=>b.onclick=()=>{
+    const i = +b.dataset.ck, k = draft.done.indexOf(i);
+    if(k>=0) draft.done.splice(k,1); else draft.done.push(i);
+    saveDraft(); const y = window.scrollY; render(); window.scrollTo(0,y);
+  });
+  document.querySelectorAll("[data-v]").forEach(el=>{
+    const upd = () => { draft.vals[el.dataset.v] = el.value; saveDraft(); };
+    el.addEventListener("input", upd); el.addEventListener("change", upd);
+  });
+  $("#s-finish").onclick = () => {
+    const v = draft.vals, items = sessionItems();
+    const s = {
+      id:"s"+Date.now(), date:draft.date, type:draft.type,
+      rpe:num(v.rpe), knee:num(v.knee) ?? 0, sleep:num(v.sleep),
+      pullups:num(v.pullups), pushups:num(v.pushups), legReps:num(v.legReps),
+      cardio: v.cardioKind ? {kind:v.cardioKind, minutes:num(v.minutes), km:num(v.km), hrAvg:num(v.hrAvg), hrMax:num(v.hrMax)} : null,
+      exercises: draft.done.slice().sort((a,b)=>a-b).map(i=>items[i]).filter(Boolean).map(shortEx).join(" · "),
+      notes: String(v.notes||"").trim(), week: weekOf(draft.date)
+    };
+    db.sessions.push(s); save();
+    draft = null; saveDraft(); tab = "today"; tabChanged = true; render(); toTop(); toast("Séance enregistrée dans le journal");
+  };
+  $("#s-cancel").onclick = () => { if(confirm("Abandonner cette séance en cours ? Rien ne sera enregistré.")){ draft = null; saveDraft(); render(); } };
+}
+function guidedStart(){
+  const t = k => `<button class="btn ghost" data-start="${k}" type="button">${k} · ${{A:"Force haut",B:"Cardio",C:"Jambes"}[k]}</button>`;
+  return `<div class="card"><h2>${ic("play")}Séance guidée</h2><p>Démarrez la séance : cochez les exercices, saisissez le test de calage, et le journal s’écrit tout seul à la fin.</p><div class="actions">${["A","B","C"].map(t).join("")}</div></div>`;
+}
+
 function historyTable(){
   const ss = db.sessions.slice().sort((a,b)=>b.date.localeCompare(a.date));
   if(!ss.length) return `<p class="empty">Aucune séance pour l’instant.</p>`;
@@ -545,6 +807,7 @@ function historyTable(){
     if(s.cardio&&s.cardio.kind) bits.push(`${s.cardio.kind} ${s.cardio.minutes||"?"} min${s.cardio.km?`, ${s.cardio.km} km`:""}${s.cardio.hrAvg?`, FC moy ${s.cardio.hrAvg}`:""}`);
     if(s.pullups!=null) bits.push(`tractions max ${s.pullups}`);
     if(s.pushups!=null) bits.push(`pompes max ${s.pushups}`);
+    if(s.legReps!=null) bits.push(`squats bulgares max ${s.legReps}/jambe`);
     if(s.rpe!=null) bits.push(`effort ${s.rpe}/10`);
     if(s.knee) bits.push(`genou ${s.knee}/10`);
     if(s.exercises) bits.push(s.exercises);
@@ -553,13 +816,24 @@ function historyTable(){
 }
 function afterLog(){
   prefill = null;
+  if(draft){ afterSession(); return; }
+  document.querySelectorAll("[data-start]").forEach(b=>b.onclick=()=>startDraft(b.dataset.start));
+  const syncCalage = () => {
+    const t = (document.querySelector('input[name="type"]:checked')||{}).value;
+    const box = $("#calage-box"); if(!box) return;
+    box.classList.toggle("hidden", !CALAGE[t]);
+    box.querySelectorAll("[data-calage]").forEach(r=>r.classList.toggle("hidden", r.dataset.calage!==t));
+    $("#calage-txt").textContent = CALAGE[t] || "";
+  };
+  document.querySelectorAll('input[name="type"]').forEach(r=>r.addEventListener("change", syncCalage));
+  syncCalage();
   $("#logform").onsubmit = e => {
     e.preventDefault();
     const f = new FormData(e.target), g = k => f.get(k);
     const s = {
       id: "s"+Date.now(), date: g("date"), type: g("type"),
       rpe: num(g("rpe")), knee: num(g("knee")) ?? 0, sleep: num(g("sleep")),
-      pullups: num(g("pullups")), pushups: num(g("pushups")),
+      pullups: num(g("pullups")), pushups: num(g("pushups")), legReps: num(g("legReps")),
       cardio: g("cardioKind") ? { kind:g("cardioKind"), minutes:num(g("minutes")), km:num(g("km")), hrAvg:num(g("hrAvg")), hrMax:num(g("hrMax")) } : null,
       exercises: g("exercises").trim(), notes: g("notes").trim(), week: weekOf(g("date"))
     };

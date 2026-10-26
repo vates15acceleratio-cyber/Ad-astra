@@ -14,23 +14,30 @@ Matériel : barre de traction, vélo, piscine. Contrainte : genou gauche sensibl
 
 ## Séances
 - **A · Force haut** : tractions sous-maximales, négatives, tirages horizontaux, pompes, gainage.
-- **B · Moteur aérobie** : test de 6 min (semaines 1 et 12), endurance facile, 4×4 nordique, 30/30.
+- **B · Moteur aérobie** : test de 6 min (semaines 1, 4, 8 et 12), endurance facile, 4×4 nordique, 30/30.
 - **C · Jambes, tronc, explosivité** : squats bulgares, fentes, sauts, corde à sauter, pistol, relevés de jambes, gainage latéral.
 
 ## Cardio (séance B) semaine par semaine
 | Semaine | Contenu |
 |---|---|
-| 1 | Test de 6 minutes |
+| 1 | Test de 6 minutes (bilan) |
 | 2 | Endurance facile 30-40 min |
 | 3, 5, 7, 9, 11 | 4×4 nordique |
-| 4 | Endurance facile 30 min (allégée) |
+| 4 | Test de 6 minutes (bilan) puis 10 min facile (allégée) |
 | 6 | 30/30 : 2 × 10 |
-| 8 | Endurance facile 30-40 min (allégée) |
+| 8 | Test de 6 minutes (bilan) puis 10 min facile (allégée) |
 | 10 | 30/30 : 2 × 12 |
-| 12 | Test de 6 minutes final et bilan |
+| 12 | Test de 6 minutes final (bilan) |
 
-## Tests de force
-Semaines 1, 4, 8, 12 : maximum de tractions strictes et de pompes propres (une série, après échauffement, en début de séance A).
+## Tests de calage (à chaque séance) et bilans (semaines 1, 4, 8, 12)
+**Calage, à chaque séance** : un test court pour savoir où l'on en est et régler la séance suivante. Le résultat se saisit dans le journal.
+- **A** : une série de tractions strictes au maximum, 3 min de repos, une série de pompes propres au maximum (après échauffement, avant le reste).
+- **B** : à la fin, noter la FC moyenne et l'effort perçu (1 à 10). Pas de test avant l'effort : le test de 6 minutes remplace la séance en semaine de bilan.
+- **C** : une série de squats bulgares propres au maximum par jambe, la plus faible d'abord ; arrêt si la technique se dégrade ou si le genou atteint 4/10 (jamais de série à l'échec sur le tronc).
+- **Règle de calage de l'appli** : séries de travail à environ 60 % (semaines 1-2), 70 % (3-6) et 75 % (7-12) du dernier maximum, au moins 1 répétition. Cette règle est pratique : elle suit les fourchettes « sous-maximales » ci-dessus. **Aucune étude validée n'a été trouvée** qui relie un maximum de répétitions en poids du corps à des séries de travail ; l'appli ne choisit les séries qu'à l'intérieur des fourchettes écrites dans ce programme ; à ajuster selon le ressenti, et à documenter avec l'agent `recherche-sport`. Sources consultées (résultats partiels, pas de règle validée pour le poids du corps) : [relation répétitions / charge selon l'exercice et la population](https://pmc.ncbi.nlm.nih.gov/articles/PMC4042664), [revue sur le contrôle de la proximité de l'échec](https://lida.sport-iat.de/ta/Record/4076723?lng=en).
+- **B** : si l'effort perçu de la dernière séance est de 9 ou plus, rester en bas de la fourchette de FC ; de 4 ou moins, viser le haut. Seuils indicatifs, à valider.
+
+**Bilans, aux semaines 1, 4, 8 et 12** (semaines allégées, sauf la première) : tractions et pompes au maximum, test de 6 minutes (semaines 4 et 8 : il remplace l'endurance), tests de souplesse (flexion avant, genou au mur, squat profond tenu), poids et tour de taille. L'accueil de l'appli affiche la liste des mesures restantes et un repère « en avance / dans la trajectoire / en retard » : droite entre la première mesure et l'objectif à la semaine 12 (la trajectoire de la personne, pas une norme).
 
 ## Règles de sécurité (genou gauche)
 - Course continue limitée à 75 minutes. Sorties longues à vélo ou en piscine.
@@ -56,7 +63,7 @@ Le tronc travaille quatre fonctions : résister à l'extension, fléchir, résis
 ## Souplesse et mobilité
 - **Chaque jour** : routine du matin (voir ci-dessous).
 - **Séance M, une fois par semaine (optionnelle, 25 min)** : ischio-jambiers, fléchisseurs de hanche, pigeon ou 90/90, adducteurs, chevilles, colonne thoracique, épaules (suspension passive à la barre), poignets. À partir de la semaine 7 : grand écart assisté. De préférence un jour sans séance intense.
-- **Tests aux semaines 1, 4, 8, 12** : flexion avant debout sur une marche (cm), genou au mur (cm), squat profond tenu (s).
+- **Tests aux semaines de bilan (1, 4, 8, 12)** : flexion avant debout sur une marche (cm), genou au mur (cm), squat profond tenu (s).
 - **Règles** : tension nette mais jamais de douleur (environ 5-6/10). Pas d'étirement statique long juste avant sauts ou sprints. Le travail actif de mobilité (cat-cow, rotations, squat tenu) est bienvenu avant les séances.
 
 ## Routine du matin

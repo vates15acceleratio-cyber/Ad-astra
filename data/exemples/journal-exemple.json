@@ -1,0 +1,291 @@
+{
+  "_fictif": true,
+  "_note": "Journal FICTIF pour tester les agents. Ne pas importer dans l'appli avec vos vraies données.",
+  "version": 1,
+  "profile": {
+    "start": "2026-09-21",
+    "goalPullups": 10,
+    "goalPushups": 40,
+    "maxRunMin": 75
+  },
+  "sessions": [
+    {
+      "id": "s1",
+      "date": "2026-09-21",
+      "type": "A",
+      "rpe": 6,
+      "knee": 0,
+      "sleep": 7,
+      "pullups": 3,
+      "pushups": 20,
+      "cardio": null,
+      "exercises": "Tractions 5x2, négatives 3x3, pompes 3x12, planche 3x30, dead bug 3x8",
+      "notes": "",
+      "week": 1
+    },
+    {
+      "id": "s2",
+      "date": "2026-09-23",
+      "type": "B",
+      "rpe": 7,
+      "knee": 1,
+      "sleep": 7,
+      "pullups": null,
+      "pushups": null,
+      "cardio": {
+        "kind": "Course",
+        "minutes": 6,
+        "km": 1.5,
+        "hrAvg": 174,
+        "hrMax": 182
+      },
+      "exercises": "Test 6 min",
+      "notes": "",
+      "week": 1
+    },
+    {
+      "id": "s3",
+      "date": "2026-09-25",
+      "type": "C",
+      "rpe": 7,
+      "knee": 1,
+      "sleep": 6.5,
+      "pullups": null,
+      "pushups": null,
+      "cardio": null,
+      "exercises": "Bulgares 3x8, fentes 3x8, gainage latéral 3x25, bird-dog 3x8",
+      "notes": "",
+      "week": 1
+    },
+    {
+      "id": "s4",
+      "date": "2026-09-28",
+      "type": "A",
+      "rpe": 6,
+      "knee": 1,
+      "sleep": 7,
+      "pullups": null,
+      "pushups": null,
+      "cardio": null,
+      "exercises": "Tractions 5x3, négatives 3x3, pompes 3x13, planche 3x40, relevés de genoux 3x8",
+      "notes": "",
+      "week": 2
+    },
+    {
+      "id": "s5",
+      "date": "2026-09-30",
+      "type": "B",
+      "rpe": null,
+      "knee": 0,
+      "sleep": null,
+      "pullups": null,
+      "pushups": null,
+      "cardio": {
+        "kind": "Vélo",
+        "minutes": 40,
+        "km": 15,
+        "hrAvg": 128,
+        "hrMax": 142
+      },
+      "exercises": "Vélo facile",
+      "notes": "",
+      "week": 2
+    },
+    {
+      "id": "s6",
+      "date": "2026-10-03",
+      "type": "C",
+      "rpe": 7,
+      "knee": 2,
+      "sleep": 7,
+      "pullups": null,
+      "pushups": null,
+      "cardio": null,
+      "exercises": "Bulgares 3x8, fentes 3x8, gainage latéral 3x30, crunch oblique 3x10",
+      "notes": "",
+      "week": 2
+    },
+    {
+      "id": "s7",
+      "date": "2026-10-05",
+      "type": "A",
+      "rpe": 7,
+      "knee": 1,
+      "sleep": 7,
+      "pullups": 4,
+      "pushups": 21,
+      "cardio": null,
+      "exercises": "Tractions 5x3, négatives 3x3, pompes 4x12, planche 3x45, body saw 3x8",
+      "notes": "",
+      "week": 3
+    },
+    {
+      "id": "s8",
+      "date": "2026-10-07",
+      "type": "B",
+      "rpe": 9,
+      "knee": 3,
+      "sleep": 6,
+      "pullups": null,
+      "pushups": null,
+      "cardio": {
+        "kind": "Course",
+        "minutes": 38,
+        "km": 6.2,
+        "hrAvg": 165,
+        "hrMax": 186
+      },
+      "exercises": "4x4 nordique",
+      "notes": "",
+      "week": 3
+    },
+    {
+      "id": "s9",
+      "date": "2026-10-10",
+      "type": "C",
+      "rpe": 8,
+      "knee": 3,
+      "sleep": 6.5,
+      "pullups": null,
+      "pushups": null,
+      "cardio": null,
+      "exercises": "Squats sautés 3x8, corde 5x1, bulgares 3x10",
+      "notes": "",
+      "week": 3
+    },
+    {
+      "id": "s10",
+      "date": "2026-10-12",
+      "type": "A",
+      "rpe": 8,
+      "knee": 3,
+      "sleep": 7,
+      "pullups": 4,
+      "pushups": 22,
+      "cardio": null,
+      "exercises": "Tractions 5x4, négatives 3x3, pompes 4x14. Test max.",
+      "notes": "",
+      "week": 4
+    },
+    {
+      "id": "s11",
+      "date": "2026-10-14",
+      "type": "B",
+      "rpe": 9,
+      "knee": 4,
+      "sleep": 6,
+      "pullups": null,
+      "pushups": null,
+      "cardio": {
+        "kind": "Course",
+        "minutes": 45,
+        "km": 7.4,
+        "hrAvg": 168,
+        "hrMax": 187
+      },
+      "exercises": "4x4 nordique",
+      "notes": "",
+      "week": 4
+    },
+    {
+      "id": "s12",
+      "date": "2026-10-16",
+      "type": "C",
+      "rpe": 8,
+      "knee": 4,
+      "sleep": 6.5,
+      "pullups": null,
+      "pushups": null,
+      "cardio": null,
+      "exercises": "Pistol assisté 3x3, bulgares 3x10, squats sautés 3x8",
+      "notes": "",
+      "week": 4
+    },
+    {
+      "id": "s13",
+      "date": "2026-10-19",
+      "type": "A",
+      "rpe": 7,
+      "knee": 3,
+      "sleep": 7,
+      "pullups": 4,
+      "pushups": 22,
+      "cardio": null,
+      "exercises": "Tractions 5x4, pompes 4x14, tirages horizontaux 3x10",
+      "notes": "",
+      "week": 5
+    },
+    {
+      "id": "s14",
+      "date": "2026-10-21",
+      "type": "B",
+      "rpe": 9,
+      "knee": 5,
+      "sleep": 6,
+      "pullups": null,
+      "pushups": null,
+      "cardio": {
+        "kind": "Course",
+        "minutes": 50,
+        "km": 8.1,
+        "hrAvg": 170,
+        "hrMax": 189
+      },
+      "exercises": "4x4 nordique",
+      "notes": "",
+      "week": 5
+    }
+  ],
+  "body": [
+    {
+      "id": "b1",
+      "date": "2026-09-21",
+      "weight": 80.0,
+      "waist": 88.0
+    },
+    {
+      "id": "b2",
+      "date": "2026-10-12",
+      "weight": 79.2,
+      "waist": 87.0
+    }
+  ],
+  "tests": [
+    {
+      "id": "t1",
+      "date": "2026-09-23",
+      "distance": 1500,
+      "maxHr": 182
+    }
+  ],
+  "mobility": [
+    {
+      "id": "m1",
+      "date": "2026-09-21",
+      "reach": -8,
+      "kneeWall": 8,
+      "squatHold": 20
+    },
+    {
+      "id": "m2",
+      "date": "2026-10-12",
+      "reach": -5,
+      "kneeWall": 9,
+      "squatHold": 35
+    }
+  ],
+  "morning": {
+    "2026-10-13": "express",
+    "2026-10-14": "express",
+    "2026-10-15": "full",
+    "2026-10-17": "express",
+    "2026-10-18": "express",
+    "2026-10-19": "express",
+    "2026-10-20": "express",
+    "2026-10-22": "express",
+    "2026-10-23": "express",
+    "2026-10-24": "full",
+    "2026-10-25": "express"
+  },
+  "coachNotes": []
+}

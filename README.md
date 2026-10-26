@@ -1,7 +1,21 @@
-# Ad-astra — v1.0.0
+# Ad-astra — v1.1.0
 Préparation physique perso
 
 App perso de suivi de reprise sportive. Single-page PWA installable, données 100 % locales (localStorage), pas de serveur, pas de traceur, fonctionne hors ligne.
+
+## Nouveautés v1.1.0
+
+Refonte complète de l'interface, dans l'esprit de l'appli Muscu.
+
+- **Nouvelle identité** : thème sombre et accent or, étoile filante dorée comme logo et icône (installée sur l'écran d'accueil du téléphone), écran de démarrage avec la devise « Per aspera ad astra » (2,5 s ou un appui, aucun clignotement, désactivé si le téléphone demande moins d'animations).
+- **Navigation en bas de l'écran** (barre latérale sur ordinateur), en-tête fixe avec la semaine en cours.
+- **Accueil** : carte héros avec la progression des 12 semaines, séances A/B/C/M de la semaine, prochaine séance mise en avant, série de la routine du matin.
+- **Journal** : type de séance en boutons, champs regroupés par thème, historique en liste.
+- **Progrès** : chiffre clé, tendance et barre d'avancement vers l'objectif pour chaque mesure, courbes avec dégradé.
+- **Plan** : sélecteur de semaine horizontal ; **Matin** : sept derniers jours en pastilles, routines repliables.
+- Confirmation d'enregistrement (bandeau), confirmation avant de supprimer un test, une mesure ou un test de souplesse, boutons de suppression nommés par date.
+- Corrections : apostrophes affichées correctement dans l'historique, arrondi des allures (5:59,6 → 6:00), installation hors ligne qui recharge réellement les fichiers (plus de risque de garder un ancien `app.js`).
+- **Données** : format inchangé.
 
 ## Nouveautés v1.0.0
 
@@ -20,9 +34,9 @@ Première version publiée : l'appli passe au niveau de qualité de Muscu.
 
 ## Contenu de l'appli
 
-- **Aujourd'hui** : séance suggérée, alertes (genou, régularité, sauvegarde), notes du coach.
+- **Accueil** : séance suggérée, alertes (genou, régularité, sauvegarde), notes du coach.
 - **Routine matin** : version express (8-10 min) ou complète (20 min, avec Baduanjin), série de jours consécutifs.
-- **Journal**, **Progrès** (tractions, pompes, VMA, genou, souplesse, poids), **Programme** (12 semaines, abdos, séance de souplesse), **Corps & tests**, **Données**.
+- **Journal**, **Progrès** (tractions, pompes, VMA, genou, souplesse, poids), **Programme** (12 semaines, abdos, séance de souplesse), **Corps** (tests de 6 min, souplesse, poids), **Données**.
 - Programme détaillé : `docs/PROGRAMME.md`.
 
 ## Installer sur le téléphone
@@ -39,6 +53,10 @@ Si l'appli semble bloquée sur une ancienne version : ferme-la complètement (re
 1. Le dépôt doit être **Public** (Pages gratuit).
 2. **Settings** → **Pages** → Source : **Deploy from a branch** → branche `main`, dossier `/ (root)`.
 3. Attendre 1 à 2 minutes : l'adresse ci-dessus apparaît.
+
+## Crédits
+
+Police Cinzel (écran de démarrage) : SIL Open Font License 1.1.
 
 ## Confidentialité
 
@@ -59,5 +77,5 @@ Avant le bilan, exporter le journal depuis l'appli (onglet Données) vers `data/
 cd tests && npm install && npm test    # code 0 = tout passe
 ```
 
-Structure : `index.html`, `app.js`, `sw.js`, `manifest.webmanifest`, icônes, `docs/`, `.claude/`, `data/`, `tests/`.
+Structure : `index.html`, `app.js`, `splash.js`, `sw.js`, `manifest.webmanifest`, icônes, `docs/`, `.claude/`, `data/`, `tests/`.
 Convention de version : `majeur.mineur.correctif`. Voir `CLAUDE.md`.

@@ -4,11 +4,15 @@
    Mise à jour : la nouvelle version s'installe en arrière-plan puis attend ;
    app.js (Updater) propose de relancer l'appli. Pas de skipWaiting automatique. */
 
-const CACHE_VERSION = 'ad-astra-v1.0.0';
+const CACHE_VERSION = 'ad-astra-v1.1.0';
 const APP_SHELL = [
   './',
   './index.html',
   './app.js',
+  './splash.js',
+  './figure.svg',
+  './mark.svg',
+  './cinzel-700-latin.woff2',
   './manifest.webmanifest',
   './icon.svg',
   './icon-192.png',
@@ -18,7 +22,7 @@ const APP_SHELL = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_VERSION).then(cache => cache.addAll(APP_SHELL)));
+  event.waitUntil(caches.open(CACHE_VERSION).then(cache => cache.addAll(APP_SHELL.map(u => new Request(u, { cache: 'reload' })))));
 });
 
 self.addEventListener('message', event => {

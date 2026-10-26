@@ -27,6 +27,12 @@ Projet personnel : reprise sportive sur 12 semaines (callisthénie, course, vél
 
 Les agents lisent le journal en lecture seule. Seul `suivi-progression` écrit `coach-notes.json` et les rapports.
 
+## Identité visuelle (depuis 1.1.0) — à conserver
+- Thème sombre unique (pas de mode clair), accent or `#f5d76e`, mêmes jetons de couleur que l'appli Muscu (`--bg`, `--surface`, `--accent`…) dans `index.html`. Navigation en bas (barre latérale ≥ 900 px).
+- Logo : **étoile filante dorée** (`icon.svg`, PNG dérivés, `figure.svg` pour l'écran de démarrage, `mark.svg` pour l'en-tête). Écran de démarrage `#splash` (CSS dans `index.html`, fermeture dans `splash.js`, indépendant de `app.js`) : 2,5 s ou un appui, sortie par glissement vers le haut, texte « Made by Vates Inc. » fixe, police Cinzel embarquée (`cinzel-700-latin.woff2`, SIL OFL 1.1, copiée de Muscu).
+- Aucun clignotement : l'écran ne varie jamais en opacité ; seuls des éléments locaux bougent (transform). Tout est désactivé avec `prefers-reduced-motion`.
+- Les PNG se régénèrent depuis les SVG avec Chrome sans interface (`--headless=new --screenshot`).
+
 ## Versions
 - Format `majeur.mineur.correctif`. Trois endroits toujours identiques : `APP_VERSION` (`app.js`), `CACHE_VERSION` (`sw.js`, préfixe `ad-astra-v`) et le titre du README (`# Ad-astra — vX.Y.Z`). Le test `npm test` le vérifie.
 - Un changement de numéro est nécessaire pour qu'une modification de `app.js` atteigne les appareils déjà installés (le JS est servi en cache-first par version).

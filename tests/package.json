@@ -1,0 +1,7 @@
+{
+  "name": "ad-astra-tests",
+  "private": true,
+  "description": "Tests de l'appli (jsdom). Lancer : npm install puis npm test",
+  "scripts": { "test": "node run-tests.js" },
+  "devDependencies": { "jsdom": "^26.0.0" }
+}

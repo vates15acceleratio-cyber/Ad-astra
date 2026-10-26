@@ -1,1 +1,10 @@
+node_modules/
+
+# Données personnelles : le dépôt est public, elles ne doivent jamais y entrer.
 data/journal.json
+data/coach-notes.json
+data/audits/*
+!data/audits/.gitkeep
+!data/audits/exemple-*.md
+data/rapports/*
+!data/rapports/.gitkeep

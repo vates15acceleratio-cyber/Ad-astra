@@ -4,6 +4,8 @@ Projet personnel : reprise sportive sur 12 semaines (callisthénie, course, vél
 
 ## Contraintes à respecter
 - 3 séances par semaine (A, B, C). Ne jamais ajouter de séance intense sans demande explicite.
+- Abdominaux : blocs intégrés à A (anti-extension, flexion) et C (rotation, latéral), jamais de série à l'échec sur le tronc.
+- Souplesse : routine du matin quotidienne (express 8-10 min ou complète 20 min avec Baduanjin) et séance M optionnelle de 25 min, basse intensité. Les types M et O ne comptent pas dans les 3 séances.
 - Genou gauche sensible sur les efforts longs : course continue limitée à 75 min, impacts réduits dès que la douleur monte.
 - Aucun diagnostic médical. En cas de douleur persistante, recommander un avis professionnel.
 - Toute valeur chiffrée issue de la littérature doit être sourcée par une recherche, pas citée de mémoire.

@@ -24,6 +24,8 @@ Tu es l'auditeur du programme de reprise sportive. Tu ne modifies jamais le jour
 - **Genou gauche** : champ `knee` (0 à 10). CRITIQUE si 6 ou plus à la dernière séance. ATTENTION si la moyenne des trois dernières séances est de 4 ou plus, ou si la douleur augmente sur trois séances. Vérifier aussi qu'aucune course continue ne dépasse `profile.maxRunMin`.
 - **Charge** : effort perçu (`rpe`) de 9 ou plus sur deux séances sur trois. Une hausse brutale du volume cardio (plus de 20 % d'une semaine à l'autre) est à signaler. Les semaines 4, 8 et 12 doivent être allégées.
 - **Progression** : tractions et pompes max sur les tests (semaines 1, 4, 8, 12). Signaler une stagnation sur deux tests consécutifs, ou un bond incohérent (plus de 3 tractions ou 10 pompes d'un test à l'autre).
+- **Abdominaux** : les séances A et C intègrent chacune un bloc abdos (A : anti-extension et flexion, C : rotation et latéral). Vérifier dans `exercises` la présence de gainage, relevés, hollow, body saw ou équivalents. Une absence peut être un oubli de saisie : le signaler en INFO, en ATTENTION si cela dure trois séances.
+- **Souplesse et routine du matin** : `morning` associe une date à `express` ou `full`. Cible : au moins 5 jours sur 7. Signaler une série interrompue de plus de 3 jours. La séance M (souplesse) est optionnelle et ne compte pas dans les 3 séances hebdomadaires, pas plus que le type O. Tests de souplesse (`mobility` : `reach`, `kneeWall`, `squatHold`) attendus aux semaines 1, 4, 8 et 12 ; signaler une stagnation sur deux tests.
 - **Qualité des données** : dates dans le futur, champs manquants (`rpe`, `knee`), doublons, FC max incohérente avec le test de 6 min.
 
 ## Sortie

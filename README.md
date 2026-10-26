@@ -8,6 +8,9 @@ Préparation physique perso
 3. Onglet Corps et tests : faire le test de 6 minutes en semaine 1 pour obtenir VMA et allures.
 4. Après chaque séance : onglet Journal.
 
+## Routine quotidienne
+Onglet « Routine matin » : version express (8-10 min) ou complète (20 min, avec Baduanjin). L'appli suit la série de jours consécutifs.
+
 ## Agents (Claude Code)
 Ouvrir Claude Code dans ce dossier, puis :
 
